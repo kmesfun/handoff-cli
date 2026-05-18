@@ -1,0 +1,38 @@
+# .handoff.yml — handoff configuration
+# Copy this file to your repo root as .handoff.yml and customize as needed.
+# All keys are optional. handoff works out of the box with no config.
+
+# Base branch to diff against (default: auto-detect main/master)
+# base_branch: main
+
+# Additional risky path patterns and their severity
+# risk_paths:
+#   - pattern: "internal/payments"
+#     severity: HIGH
+#   - pattern: "scripts/deploy"
+#     severity: MEDIUM
+
+# Paths to ignore during analysis (glob patterns)
+# ignore_paths:
+#   - "docs/**"
+#   - "*.md"
+#   - "migrations/seeds/**"
+
+# Additional debug patterns to detect (on top of built-ins)
+# debug_patterns:
+#   - "logger.debug("
+#   - "console.trace("
+
+# Custom test file mappings
+# test_mappings:
+#   - source: "src/services/**/*.ts"
+#     test: "src/services/__tests__/*.test.ts"
+
+# Minimum readiness score required to exit 0 (default: 0 = never fail on score)
+# min_score: 70
+
+# LLM summarization (optional, post-MVP)
+# llm:
+#   provider: ollama          # openai | anthropic | ollama | none
+#   model: llama3
+#   base_url: http://localhost:11434
