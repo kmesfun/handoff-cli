@@ -1,0 +1,71 @@
+diff --git a/app/auth/token.py b/app/auth/token.py
+index 1234567..abcdefg 100644
+--- a/app/auth/token.py
++++ b/app/auth/token.py
+@@ -10,6 +10,12 @@ import jwt
+ SECRET_KEY = "supersecret"
+ ALGORITHM = "HS256"
+
++# TODO: switch to RS256 before production
++def create_token(user_id: int) -> str:
++    print("Creating token for user:", user_id)
++    payload = {"sub": str(user_id), "exp": 3600}
++    return jwt.encode(payload, SECRET_KEY, algorithm=ALGORITHM)
++
+ def verify_token(token: str) -> dict:
+     try:
+         return jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+diff --git a/app/auth/middleware.py b/app/auth/middleware.py
+index 2345678..bcdefgh 100644
+--- a/app/auth/middleware.py
++++ b/app/auth/middleware.py
+@@ -5,6 +5,10 @@ from app.auth.token import verify_token
+
+ class AuthMiddleware:
+     def process(self, request):
++        # FIXME: this skips auth on OPTIONS requests
++        if request.method == "OPTIONS":
++            return
+         token = request.headers.get("Authorization", "").removeprefix("Bearer ")
+         return verify_token(token)
+diff --git a/app/config.py b/app/config.py
+index 3456789..cdefghi 100644
+--- a/app/config.py
++++ b/app/config.py
+@@ -1,4 +1,6 @@
+ import os
+
+ DATABASE_URL = os.getenv("DATABASE_URL", "postgresql://localhost/mydb")
++API_KEY = "sk-abc123supersecretkey99"
++DEBUG = True
+diff --git a/migrations/versions/001_add_last_login.py b/migrations/versions/001_add_last_login.py
+new file mode 100644
+index 0000000..ddddddd
+--- /dev/null
++++ b/migrations/versions/001_add_last_login.py
+@@ -0,0 +1,12 @@
++"""Add last_login column to users"""
++from alembic import op
++import sqlalchemy as sa
++
++def upgrade():
++    op.add_column('users', sa.Column('last_login', sa.DateTime(), nullable=True))
++
++def downgrade():
++    op.drop_column('users', 'last_login')
+diff --git a/tests/test_token.py b/tests/test_token.py
+new file mode 100644
+index 0000000..eeeeeee
+--- /dev/null
++++ b/tests/test_token.py
+@@ -0,0 +1,10 @@
++import pytest
++from app.auth.token import create_token, verify_token
++
++def test_create_token_returns_string():
++    token = create_token(1)
++    assert isinstance(token, str)
++
++def test_verify_token_raises_on_invalid():
++    with pytest.raises(Exception):
++        verify_token("bad.token.here")
